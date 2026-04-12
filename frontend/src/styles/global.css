@@ -1,0 +1,88 @@
+/* SafeVoyage AI - Global Stylesheet */
+
+/* ---- Base ---- */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f6fa;
+  color: #333;
+}
+
+/* ---- Navbar ---- */
+.sv-navbar {
+  background: linear-gradient(135deg, #c0392b, #922b21);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* ---- Auth pages ---- */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #c0392b 0%, #922b21 50%, #1a1a2e 100%);
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 12px;
+  border: none;
+}
+
+/* ---- Card header ---- */
+.sv-card-header {
+  background: linear-gradient(135deg, #c0392b, #922b21);
+  color: white;
+  font-weight: 600;
+}
+
+/* ---- User avatar circle ---- */
+.sv-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c0392b, #922b21);
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* ---- Quick action cards on dashboard ---- */
+.sv-action-card {
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
+}
+
+.sv-action-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* ---- SOS button pulse animation ---- */
+.sos-btn {
+  font-size: 1.2rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 14px;
+  border-radius: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(220, 53, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+/* ---- Responsive tweaks ---- */
+@media (max-width: 576px) {
+  .sv-avatar { width: 55px; height: 55px; font-size: 1.5rem; }
+  .sos-btn { font-size: 1rem; }
+}
