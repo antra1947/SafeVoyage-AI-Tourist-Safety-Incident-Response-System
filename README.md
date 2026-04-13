@@ -1,6 +1,6 @@
-# SafeVoyage AI — Tourist Safety & Incident Response System
+# SafeVoyage AI — Enterprise Tourist Safety & Incident Intelligence Platform
 
-A full-stack MERN application that helps tourists stay safe with real-time location tracking, emergency SOS alerts, incident reporting, and safety zone warnings.
+A production-ready, full-stack MERN application built for real-world tourist safety. Features real-time location tracking, AI-powered safety advice, emergency SOS with email alerts, incident reporting, and an admin control panel.
 
 ---
 
@@ -12,34 +12,35 @@ A full-stack MERN application that helps tourists stay safe with real-time locat
 ### Dashboard
 ![Dashboard](screenshots/dashboard.png)
 
-### Safety Alerts & Zone Warnings
-![Safety Alerts](screenshots/alerts.png)
+### Emergency SOS
+![Emergency SOS](screenshots/sos.png)
 
 ### Report an Incident
 ![Report Incident](screenshots/report.png)
 
-### Emergency SOS
-![Emergency SOS](screenshots/sos.png)
+### Safety Alerts & Zone Warnings
+![Safety Alerts](screenshots/alerts.png)
 
 ---
 
 ## Tech Stack
 
 **Frontend**
-- React.js
-- React Router DOM
+- React.js (Context API)
 - Bootstrap 5
-- Leaflet.js (maps)
+- Leaflet.js (live map)
 - Axios
 
 **Backend**
-- Node.js + Express.js
-- MongoDB + Mongoose
+- Node.js + Express.js (MVC + Microservices)
+- MongoDB + Mongoose (geospatial 2dsphere)
 - Socket.IO (real-time location)
-- JWT Authentication
+- JWT Authentication + bcrypt
 - Joi Validation
 - Nodemailer (Gmail / Amazon SES)
+- Helmet + Rate Limiting + Morgan
 - EJS (map interface)
+- Google Gemini AI (`gemini-1.5-flash`)
 
 ---
 
@@ -54,17 +55,27 @@ A full-stack MERN application that helps tourists stay safe with real-time locat
 │   │   │   ├── auth/
 │   │   │   ├── user/
 │   │   │   ├── emergency/
-│   │   │   └── location/
+│   │   │   ├── incident/
+│   │   │   ├── location/
+│   │   │   ├── admin/
+│   │   │   └── ai/
 │   │   ├── utils/emailService.js
 │   │   ├── views/map.ejs
 │   │   └── app.js
-│   ├── .env
+│   ├── services/                  ← Microservices
+│   │   ├── api-gateway/           → port 7000
+│   │   ├── auth-service/          → port 7001
+│   │   ├── user-service/          → port 7002
+│   │   ├── incident-service/      → port 7003
+│   │   ├── emergency-service/     → port 7004
+│   │   └── location-service/      → port 7005
 │   └── package.json
 └── frontend/
     ├── src/
     │   ├── components/
     │   ├── context/AuthContext.js
     │   ├── pages/
+    │   ├── styles/global.css
     │   ├── api.js
     │   └── App.js
     └── package.json
@@ -84,7 +95,7 @@ JWT_SECRET=your_secret_key
 # Gmail
 EMAIL_PROVIDER=gmail
 EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
+EMAIL_PASS=your_gmail_app_password
 
 # Amazon SES (alternative)
 # EMAIL_PROVIDER=ses
@@ -94,13 +105,19 @@ EMAIL_PASS=your_app_password
 # SES_PASS=your_ses_pass
 
 ALLOWED_ORIGINS=http://localhost:3000
+
+# Gemini AI
+GEMINI_API_KEY=your_gemini_api_key
 ```
+
+> Get Gmail App Password: Google Account → Security → 2-Step Verification → App Passwords
+> Get Gemini API Key free at: https://aistudio.google.com
 
 ---
 
 ## Local Setup
 
-### 1. Backend
+### 1. Backend (Monolithic)
 ```bash
 cd backend
 npm install
@@ -116,7 +133,14 @@ npm start
 ```
 Runs on `http://localhost:3000`
 
-### 3. Make Admin Account
+### 3. Microservices (Alternative)
+```bash
+cd backend/services
+node start-all.js
+```
+Starts all 6 services (ports 7000–7005)
+
+### 4. Make Admin Account
 Register normally, then run in MongoDB shell:
 ```js
 db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
@@ -136,21 +160,43 @@ db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/user/profile` | Get profile |
-| PATCH | `/api/user/profile` | Update profile + safety info |
+| PATCH | `/api/user/profile` | Update profile + safety profile + emergency contacts |
 
 ### Emergency
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/emergency/sos` | Trigger SOS alert |
+| POST | `/api/emergency/sos` | Trigger SOS — sends HTML email to all emergency contacts + confirmation to sender |
 | GET | `/api/emergency/history` | Get SOS history |
 | GET | `/api/emergency/:id` | Get single emergency |
 | PATCH | `/api/emergency/:id/resolve` | Resolve emergency |
 
+### Incidents
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/incidents` | Report incident |
+| GET | `/api/incidents/my` | My incidents |
+| GET | `/api/incidents` | All incidents (admin) |
+| PATCH | `/api/incidents/:id/status` | Update status (admin) |
+
+### Admin
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admin/stats` | Dashboard stats |
+| GET | `/api/admin/users` | All users |
+| GET | `/api/admin/sos` | All SOS alerts |
+| PATCH | `/api/admin/sos/:id/acknowledge` | Acknowledge SOS |
+
+### AI (Gemini)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/ai/safety-advice` | Get AI safety tips for a location |
+| POST | `/api/ai/analyze-incident` | AI risk analysis of an incident |
+
 ### Location
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/locations/nearby?lat=&lng=` | Get nearby users (100m radius) |
-| GET | `/api/map` | Live map UI (EJS) |
+| GET | `/api/locations/nearby?lat=&lng=` | Nearby users (100m radius) |
+| GET | `/api/map?token=<jwt>` | Live map UI (EJS + Leaflet) |
 
 ### Auth Header
 ```
@@ -159,30 +205,49 @@ Authorization: Bearer <token>
 
 ---
 
+## SOS Email Flow
+
+When a user triggers SOS:
+1. GPS coordinates captured (memory-first, DB fallback)
+2. Rich HTML alert email sent to every emergency contact with Google Maps link
+3. Confirmation email sent to the user showing exactly who was notified
+4. Emergency numbers (100, 108, 101, 1091) included in every email
+5. SOS logged in DB with timestamp and status tracking
+
+---
+
 ## Real-Time Location (Socket.IO)
 
-Connect with JWT token, then emit:
 ```js
 socket.emit("send-location", { latitude: 31.25, longitude: 75.70 })
 ```
+- JWT-authenticated socket connection
 - Location saved in memory instantly
-- DB write throttled by time (5s) and distance (10m)
+- DB write throttled: 5s time + 10m distance
 - Last location saved on disconnect
+- Nearby users via MongoDB `$near` geospatial query
 
 ---
 
 ## Features
 
-- JWT-based authentication
-- Tourist dashboard with live Leaflet map
-- One-click SOS with GPS + email alerts to emergency contacts
+- JWT authentication with role-based access (Tourist / Admin)
+- Full safety profile — blood group, allergies, medical notes, emergency contacts
+- One-click SOS with rich HTML email alerts + sender confirmation
 - Real-time location tracking via Socket.IO
-- Nearby users via MongoDB geospatial query (2dsphere)
-- Incident reporting (type, severity, GPS location)
-- Safety zone alerts with severity levels
-- Admin panel for managing users, incidents, SOS
+- Nearby users via MongoDB 2dsphere geospatial query
+- Incident reporting with type, severity, GPS, AI analysis
+- AI Safety Advisor powered by Google Gemini
+- Safety zone warnings with severity levels
+- Admin panel — stats, user management, incident management, SOS acknowledgment
 - Provider-agnostic email (Gmail or Amazon SES)
-- Joi input validation on all endpoints
+- Rate limiting, Helmet security headers, Morgan logging
+- Microservices architecture with API Gateway
 
 ---
 
+## Deployment
+
+- Frontend → [Vercel](https://vercel.com)
+- Backend → [Render](https://render.com)
+- Database → [MongoDB Atlas](https://mongodb.com/atlas)
