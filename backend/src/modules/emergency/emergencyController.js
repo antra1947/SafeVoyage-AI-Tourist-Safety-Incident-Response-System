@@ -106,4 +106,12 @@ const resolve = async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
 
-module.exports = { triggerSOS, getHistory, getOne, resolve };
+const deleteSOS = async (req, res) => {
+  try {
+    const record = await Emergency.findOneAndDelete({ _id: req.params.id, triggeredBy: req.user._id });
+    if (!record) return res.status(404).json({ success: false, message: "Not found or not authorized" });
+    res.json({ success: true, message: "SOS record deleted" });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+module.exports = { triggerSOS, getHistory, getOne, resolve, deleteSOS };

@@ -8,38 +8,43 @@ const getSafetyAdvice = async (req, res) => {
     const { location, incidentType, context } = req.body;
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const prompt = `You are a tourist safety expert. A tourist needs safety advice.
+    const prompt = `You are an expert tourist safety advisor with deep knowledge of travel risks worldwide.
+
+A tourist needs detailed safety advice for:
 Location: ${location || "Unknown"}
 Situation: ${incidentType || "General safety inquiry"}
-Context: ${context || "Tourist needs general safety tips"}
+Context: ${context || "Tourist needs safety guidance"}
 
-Provide 3-5 concise, actionable safety tips. Be specific and practical. Format as a JSON array of strings.
-Example: ["Tip 1", "Tip 2", "Tip 3"]
+Provide 6-8 specific, actionable safety tips tailored to this exact location and situation.
+Be practical, specific, and helpful. Include local emergency numbers if relevant.
+Format as a JSON array of strings. Each tip should be 1-2 sentences.
+Example: ["Tip 1 with specific detail.", "Tip 2 with actionable advice."]
 Only respond with the JSON array, nothing else.`;
 
     const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
+    const text = result.response.text().trim().replace(/```json|```/g, "");
 
     let tips;
     try {
       tips = JSON.parse(text);
     } catch {
-      tips = text.split("\n").filter(t => t.trim()).slice(0, 5);
+      tips = text.split("\n").filter(t => t.trim().length > 10).slice(0, 8);
     }
 
     res.json({ success: true, data: { tips } });
   } catch (err) {
     console.error("Gemini error:", err.message);
-    // Fallback tips if API fails
     res.json({
       success: true,
       data: {
         tips: [
-          "Stay aware of your surroundings at all times.",
-          "Keep emergency contacts saved and accessible.",
-          "Share your location with trusted contacts.",
-          "Avoid isolated areas, especially at night.",
-          "Keep copies of important documents in a safe place.",
+          "Stay aware of your surroundings at all times and avoid displaying expensive items.",
+          "Keep emergency contacts saved and accessible — Police: 100, Ambulance: 108.",
+          "Share your real-time location with trusted contacts when exploring new areas.",
+          "Avoid isolated areas especially after dark; stick to well-lit, populated routes.",
+          "Keep copies of important documents (passport, ID) in a secure digital backup.",
+          "Use only licensed taxis or verified ride-sharing apps for transportation.",
+          "Stay hydrated and carry basic first aid supplies including any personal medications.",
         ],
       },
     });

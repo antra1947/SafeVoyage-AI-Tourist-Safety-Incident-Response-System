@@ -371,15 +371,30 @@ export default function Dashboard() {
                   ) : (
                     <div className="table-responsive">
                       <table className="table sv-table mb-0">
-                        <thead><tr><th>Type</th><th>Description</th><th>Severity</th><th>Status</th><th>Date</th></tr></thead>
+                        <thead><tr><th>Type</th><th>Description</th><th>Severity</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
                         <tbody>
                           {incidents.map(inc => (
                             <tr key={inc._id}>
-                              <td className="text-capitalize fw-500">{inc.type?.replace("_", " ")}</td>
-                              <td>{inc.description?.substring(0, 45)}...</td>
+                              <td className="text-capitalize">{inc.type?.replace("_", " ")}</td>
+                              <td>{inc.description?.substring(0, 40)}...</td>
                               <td><span className={`badge bg-${severityColor(inc.severity)}`}>{inc.severity}</span></td>
                               <td><span className={`badge bg-${statusColor(inc.status)}`}>{inc.status?.replace("_", " ")}</span></td>
                               <td>{new Date(inc.createdAt).toLocaleDateString()}</td>
+                              <td>
+                                <button
+                                  className="btn btn-outline-danger btn-sm"
+                                  title="Delete incident"
+                                  onClick={async () => {
+                                    if (!window.confirm("Delete this incident?")) return;
+                                    try {
+                                      await api.delete(`/incidents/${inc._id}`);
+                                      fetchMyIncidents();
+                                    } catch (e) { alert("Could not delete"); }
+                                  }}
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -396,16 +411,49 @@ export default function Dashboard() {
                   ) : (
                     <div className="table-responsive">
                       <table className="table sv-table mb-0">
-                        <thead><tr><th>Message</th><th>Location</th><th>Status</th><th>Date</th></tr></thead>
+                        <thead><tr><th>Message</th><th>Location</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
                         <tbody>
                           {sosList.map(s => (
-                            <tr key={s._id}>
+                            <tr key={s._id} className={s.status === "active" ? "table-danger" : ""}>
                               <td>{s.message}</td>
                               <td className="small text-muted">
-                                {s.location?.coordinates ? `${s.location.coordinates[1]?.toFixed(3)}, ${s.location.coordinates[0]?.toFixed(3)}` : "N/A"}
+                                {s.location?.coordinates
+                                  ? <a href={`https://maps.google.com/?q=${s.location.coordinates[1]},${s.location.coordinates[0]}`} target="_blank" rel="noreferrer" className="text-danger">
+                                      {s.location.coordinates[1]?.toFixed(3)}, {s.location.coordinates[0]?.toFixed(3)}
+                                    </a>
+                                  : "N/A"}
                               </td>
                               <td><span className={`badge bg-${sosColor(s.status)}`}>{s.status}</span></td>
                               <td>{new Date(s.createdAt).toLocaleDateString()}</td>
+                              <td className="d-flex gap-1">
+                                {s.status === "active" && (
+                                  <button
+                                    className="btn btn-success btn-sm"
+                                    title="Mark as resolved"
+                                    onClick={async () => {
+                                      try {
+                                        await api.patch(`/emergency/${s._id}/resolve`);
+                                        fetchMySOS();
+                                      } catch (e) { alert("Could not resolve"); }
+                                    }}
+                                  >
+                                    <i className="fas fa-check"></i>
+                                  </button>
+                                )}
+                                <button
+                                  className="btn btn-outline-danger btn-sm"
+                                  title="Delete record"
+                                  onClick={async () => {
+                                    if (!window.confirm("Delete this SOS record?")) return;
+                                    try {
+                                      await api.delete(`/emergency/${s._id}`);
+                                      fetchMySOS();
+                                    } catch (e) { alert("Could not delete"); }
+                                  }}
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>

@@ -172,11 +172,18 @@ export default function AdminPanel() {
                         <td><span className={`badge bg-${severityColor(inc.severity)}`}>{inc.severity}</span></td>
                         <td><span className="badge bg-secondary">{inc.status?.replace("_", " ")}</span></td>
                         <td>
-                          <select className="form-select form-select-sm" style={{ minWidth: 120 }} value={inc.status} onChange={e => handleUpdateStatus(inc._id, e.target.value)}>
-                            <option value="pending">Pending</option>
-                            <option value="under_review">Under Review</option>
-                            <option value="resolved">Resolved</option>
-                          </select>
+                          <div className="d-flex gap-1">
+                            <select className="form-select form-select-sm" style={{ minWidth: 120 }} value={inc.status} onChange={e => handleUpdateStatus(inc._id, e.target.value)}>
+                              <option value="pending">Pending</option>
+                              <option value="under_review">Under Review</option>
+                              <option value="resolved">Resolved</option>
+                            </select>
+                            <button className="btn btn-outline-danger btn-sm" title="Delete" onClick={async () => {
+                              if (!window.confirm("Delete this incident?")) return;
+                              try { await api.delete(`/incidents/${inc._id}/admin`); fetchIncidents(); }
+                              catch (e) { alert("Could not delete"); }
+                            }}><i className="fas fa-trash"></i></button>
+                          </div>
                         </td>
                       </tr>
                     ))
