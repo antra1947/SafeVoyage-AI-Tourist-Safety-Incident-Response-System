@@ -5,14 +5,24 @@ const { locationStore } = require("../location/locationStore");
 
 const triggerSOS = async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, latitude, longitude } = req.body;
     const user = await User.findById(req.user._id);
 
-    // Get latest location: memory first, fallback to DB
-    const memLoc = locationStore.get(String(user._id));
-    const coords = memLoc
-      ? [memLoc.longitude, memLoc.latitude]
-      : user.location.coordinates;
+    // Priority: 1) browser GPS from request, 2) socket memory, 3) DB
+    let coords;
+    if (latitude && longitude) {
+      coords = [parseFloat(longitude), parseFloat(latitude)];
+    } else {
+      const memLoc = locationStore.get(String(user._id));
+      coords = memLoc
+        ? [memLoc.longitude, memLoc.latitude]
+        : user.location.coordinates;
+    }
+
+    // If still 0,0 fallback
+    if (!coords || (coords[0] === 0 && coords[1] === 0)) {
+      coords = [0, 0];
+    }
 
     const lat = coords[1] || 0;
     const lng = coords[0] || 0;

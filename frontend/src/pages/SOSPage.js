@@ -58,6 +58,8 @@ export default function SOSPage() {
     try {
       const { data } = await api.post("/emergency/sos", {
         message: message || "Emergency SOS triggered",
+        latitude:  location?.latitude,
+        longitude: location?.longitude,
       });
       setResult(data);
     } catch (err) {
