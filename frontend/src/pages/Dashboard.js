@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api";
 import LocationMap from "../components/LocationMap";
+import toast from "react-hot-toast";
 
 export default function Dashboard() {
   const { user, updateUser } = useAuth();
@@ -386,8 +387,9 @@ export default function Dashboard() {
                                   onChange={async (e) => {
                                     try {
                                       await api.patch(`/incidents/${inc._id}/mystatus`, { status: e.target.value });
+                                      toast.success("Status updated");
                                       fetchMyIncidents();
-                                    } catch { alert("Could not update status"); }
+                                    } catch { toast.error("Could not update status"); }
                                   }}
                                 >
                                   <option value="pending">Pending</option>
@@ -404,8 +406,9 @@ export default function Dashboard() {
                                     if (!window.confirm("Delete this incident?")) return;
                                     try {
                                       await api.delete(`/incidents/${inc._id}`);
+                                      toast.success("Incident deleted");
                                       fetchMyIncidents();
-                                    } catch (e) { alert("Could not delete"); }
+                                    } catch (e) { toast.error("Could not delete"); }
                                   }}
                                 >
                                   <i className="fas fa-trash"></i>
@@ -449,8 +452,9 @@ export default function Dashboard() {
                                     onClick={async () => {
                                       try {
                                         await api.patch(`/emergency/${s._id}/resolve`);
+                                        toast.success("SOS marked as resolved");
                                         fetchMySOS();
-                                      } catch (e) { alert("Could not resolve"); }
+                                      } catch (e) { toast.error("Could not resolve"); }
                                     }}
                                   >
                                     <i className="fas fa-check"></i>
@@ -463,8 +467,9 @@ export default function Dashboard() {
                                     if (!window.confirm("Delete this SOS record?")) return;
                                     try {
                                       await api.delete(`/emergency/${s._id}`);
+                                      toast.success("SOS record deleted");
                                       fetchMySOS();
-                                    } catch (e) { alert("Could not delete"); }
+                                    } catch (e) { toast.error("Could not delete"); }
                                   }}
                                 >
                                   <i className="fas fa-trash"></i>

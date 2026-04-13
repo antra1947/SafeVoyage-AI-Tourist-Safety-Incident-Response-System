@@ -42,7 +42,10 @@ export default function Login() {
               <input type="email" name="email" className="form-control" value={form.email} onChange={handleChange} required />
             </div>
             <div className="mb-3">
-              <label className="form-label">Password</label>
+              <div className="d-flex justify-content-between align-items-center mb-1">
+                <label className="form-label mb-0">Password</label>
+                <Link to="/forgot-password" className="text-danger small">Forgot password?</Link>
+              </div>
               <input type="password" name="password" className="form-control" value={form.password} onChange={handleChange} required />
             </div>
             <button type="submit" className="btn btn-danger w-100" disabled={loading}>

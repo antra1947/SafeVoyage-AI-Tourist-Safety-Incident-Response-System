@@ -10,15 +10,31 @@ const createIncident = async (req, res) => {
 
 const getMyIncidents = async (req, res) => {
   try {
-    const incidents = await Incident.find({ reportedBy: req.user._id }).sort({ createdAt: -1 });
-    res.json({ success: true, data: incidents });
+    const page  = parseInt(req.query.page)  || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip  = (page - 1) * limit;
+    const total = await Incident.countDocuments({ reportedBy: req.user._id });
+    const incidents = await Incident.find({ reportedBy: req.user._id })
+      .sort({ createdAt: -1 }).skip(skip).limit(limit);
+    res.json({ success: true, data: incidents, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
 
 const getAllIncidents = async (req, res) => {
   try {
-    const incidents = await Incident.find().populate("reportedBy", "firstName lastName email").sort({ createdAt: -1 });
-    res.json({ success: true, data: incidents });
+    const page   = parseInt(req.query.page)   || 1;
+    const limit  = parseInt(req.query.limit)  || 20;
+    const skip   = (page - 1) * limit;
+    const filter = {};
+    if (req.query.status)   filter.status   = req.query.status;
+    if (req.query.severity) filter.severity = req.query.severity;
+    if (req.query.type)     filter.type     = req.query.type;
+    if (req.query.search)   filter.description = { $regex: req.query.search, $options: "i" };
+    const total = await Incident.countDocuments(filter);
+    const incidents = await Incident.find(filter)
+      .populate("reportedBy", "firstName lastName email")
+      .sort({ createdAt: -1 }).skip(skip).limit(limit);
+    res.json({ success: true, data: incidents, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
 

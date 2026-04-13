@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
@@ -9,6 +10,9 @@ import IncidentReport from "./pages/IncidentReport";
 import SOSPage from "./pages/SOSPage";
 import AdminPanel from "./pages/AdminPanel";
 import SafetyAlerts from "./pages/SafetyAlerts";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import NotFound from "./pages/NotFound";
 
 // Redirects unauthenticated users to login
 const PrivateRoute = ({ children }) => {
@@ -28,16 +32,20 @@ function AppRoutes() {
   const { user } = useAuth();
   return (
     <Router>
+      <Toaster position="top-right" toastOptions={{ duration: 3000, style: { borderRadius: 8, fontSize: "0.88rem" } }} />
       <Navbar />
       <Routes>
         <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/report" element={<PrivateRoute><IncidentReport /></PrivateRoute>} />
-        <Route path="/sos" element={<PrivateRoute><SOSPage /></PrivateRoute>} />
-        <Route path="/alerts" element={<PrivateRoute><SafetyAlerts /></PrivateRoute>} />
-        <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
+        <Route path="/login"          element={<Login />} />
+        <Route path="/register"       element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/dashboard"      element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/report"         element={<PrivateRoute><IncidentReport /></PrivateRoute>} />
+        <Route path="/sos"            element={<PrivateRoute><SOSPage /></PrivateRoute>} />
+        <Route path="/alerts"         element={<PrivateRoute><SafetyAlerts /></PrivateRoute>} />
+        <Route path="/admin"          element={<AdminRoute><AdminPanel /></AdminRoute>} />
+        <Route path="*"               element={<NotFound />} />
       </Routes>
     </Router>
   );

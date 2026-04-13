@@ -29,6 +29,8 @@ const userSchema = new mongoose.Schema(
       coordinates: { type: [Number], default: [0, 0] }, // [lng, lat]
     },
     lastSeen: { type: Date, default: Date.now },
+    resetPasswordToken:   { type: String },
+    resetPasswordExpires: { type: Date },
   },
   { timestamps: true }
 );

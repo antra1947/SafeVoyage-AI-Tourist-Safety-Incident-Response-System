@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import api from "../api";
+import toast from "react-hot-toast";
 
 export default function AdminPanel() {
   const [tab, setTab]           = useState("stats");
@@ -8,6 +9,8 @@ export default function AdminPanel() {
   const [incidents, setIncidents] = useState([]);
   const [sosList, setSosList]   = useState([]);
   const [loading, setLoading]   = useState(false);
+  const [search, setSearch]     = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
 
   const fetchStats = useCallback(async () => {
     try {
@@ -29,7 +32,10 @@ export default function AdminPanel() {
   const fetchIncidents = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get("/incidents");
+      const params = new URLSearchParams();
+      if (search)       params.append("search", search);
+      if (filterStatus) params.append("status", filterStatus);
+      const { data } = await api.get(`/incidents?${params}`);
       setIncidents(data.data || []);
     } catch (e) { console.error(e); } finally { setLoading(false); }
   };
@@ -50,13 +56,13 @@ export default function AdminPanel() {
   };
 
   const handleUpdateStatus = async (id, status) => {
-    try { await api.patch(`/incidents/${id}/status`, { status }); fetchIncidents(); }
-    catch (e) { console.error(e); }
+    try { await api.patch(`/incidents/${id}/status`, { status }); toast.success("Status updated"); fetchIncidents(); }
+    catch (e) { toast.error("Could not update"); }
   };
 
   const handleAcknowledge = async (id) => {
-    try { await api.patch(`/admin/sos/${id}/acknowledge`); fetchSOS(); fetchStats(); }
-    catch (e) { console.error(e); }
+    try { await api.patch(`/admin/sos/${id}/acknowledge`); toast.success("SOS acknowledged"); fetchSOS(); fetchStats(); }
+    catch (e) { toast.error("Could not acknowledge"); }
   };
 
   const severityColor = (s) => ({ low: "success", medium: "warning", high: "danger", critical: "dark" }[s] || "secondary");
@@ -158,6 +164,30 @@ export default function AdminPanel() {
 
           {/* Incidents Tab */}
           {tab === "incidents" && !loading && (
+            <>
+              <div className="p-3 border-bottom d-flex gap-2 flex-wrap">
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  style={{ maxWidth: 220 }}
+                  placeholder="Search description..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && fetchIncidents()}
+                />
+                <select className="form-select form-select-sm" style={{ maxWidth: 150 }} value={filterStatus} onChange={e => { setFilterStatus(e.target.value); }}>
+                  <option value="">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="under_review">Under Review</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+                <button className="btn btn-danger btn-sm" onClick={fetchIncidents}>
+                  <i className="fas fa-search me-1"></i>Filter
+                </button>
+                <button className="btn btn-outline-secondary btn-sm" onClick={() => { setSearch(""); setFilterStatus(""); setTimeout(fetchIncidents, 100); }}>
+                  Clear
+                </button>
+              </div>
             <div className="table-responsive">
               <table className="table sv-table mb-0">
                 <thead><tr><th>Reporter</th><th>Type</th><th>Description</th><th>Severity</th><th>Status</th><th>Action</th></tr></thead>
@@ -180,8 +210,8 @@ export default function AdminPanel() {
                             </select>
                             <button className="btn btn-outline-danger btn-sm" title="Delete" onClick={async () => {
                               if (!window.confirm("Delete this incident?")) return;
-                              try { await api.delete(`/incidents/${inc._id}/admin`); fetchIncidents(); }
-                              catch (e) { alert("Could not delete"); }
+                              try { await api.delete(`/incidents/${inc._id}/admin`); toast.success("Deleted"); fetchIncidents(); }
+                              catch (e) { toast.error("Could not delete"); }
                             }}><i className="fas fa-trash"></i></button>
                           </div>
                         </td>
@@ -191,6 +221,7 @@ export default function AdminPanel() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
 
           {/* SOS Tab */}
