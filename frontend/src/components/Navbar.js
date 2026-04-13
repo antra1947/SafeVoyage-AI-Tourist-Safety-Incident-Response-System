@@ -9,8 +9,12 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   const handleLogout = () => { logout(); navigate("/login"); };
-
   const isActive = (path) => location.pathname === path;
+
+  // Hide navbar completely on auth pages
+  const authPages = ["/login", "/register", "/forgot-password"];
+  const isAuthPage = authPages.includes(location.pathname) || location.pathname.startsWith("/reset-password");
+  if (isAuthPage) return null;
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark sv-navbar">
