@@ -9,11 +9,20 @@ A production-ready, full-stack MERN application built for real-world tourist saf
 ### Login Page
 ![Login Page](screenshots/login.png)
 
+### Register Page (with password strength indicator)
+![Register Page](screenshots/register.png)
+
 ### Dashboard
 ![Dashboard](screenshots/dashboard.png)
 
+### Profile Edit (Safety Profile + Emergency Contacts)
+![Profile Edit](screenshots/profile-edit.png)
+
 ### Emergency SOS
 ![Emergency SOS](screenshots/sos.png)
+
+### Forgot Password
+![Forgot Password](screenshots/forgot-password.png)
 
 ### Report an Incident
 ![Report Incident](screenshots/report.png)
@@ -21,8 +30,8 @@ A production-ready, full-stack MERN application built for real-world tourist saf
 ### Safety Alerts & Zone Warnings
 ![Safety Alerts](screenshots/alerts.png)
 
-> **Note:** Replace the above screenshots with updated ones from the current UI.
-> Take new screenshots of: Login, Dashboard (with profile photo + AI tips), SOS page, Report page, Alerts page, Admin panel, Register page (with password strength indicator), Forgot Password page.
+### Admin Panel
+![Admin Panel](screenshots/admin.png)
 
 ---
 
