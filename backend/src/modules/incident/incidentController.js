@@ -48,4 +48,17 @@ const adminDeleteIncident = async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
 
-module.exports = { createIncident, getMyIncidents, getAllIncidents, updateStatus, deleteIncident, adminDeleteIncident };
+// User updates their own incident status
+const updateMyStatus = async (req, res) => {
+  try {
+    const incident = await Incident.findOneAndUpdate(
+      { _id: req.params.id, reportedBy: req.user._id },
+      { status: req.body.status },
+      { new: true }
+    );
+    if (!incident) return res.status(404).json({ success: false, message: "Incident not found or not authorized" });
+    res.json({ success: true, data: incident });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+module.exports = { createIncident, getMyIncidents, getAllIncidents, updateStatus, deleteIncident, adminDeleteIncident, updateMyStatus };

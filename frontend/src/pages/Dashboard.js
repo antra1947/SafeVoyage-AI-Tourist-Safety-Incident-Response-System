@@ -378,7 +378,23 @@ export default function Dashboard() {
                               <td className="text-capitalize">{inc.type?.replace("_", " ")}</td>
                               <td>{inc.description?.substring(0, 40)}...</td>
                               <td><span className={`badge bg-${severityColor(inc.severity)}`}>{inc.severity}</span></td>
-                              <td><span className={`badge bg-${statusColor(inc.status)}`}>{inc.status?.replace("_", " ")}</span></td>
+                              <td>
+                                <select
+                                  className="form-select form-select-sm"
+                                  style={{ minWidth: 110, fontSize: "0.78rem" }}
+                                  value={inc.status}
+                                  onChange={async (e) => {
+                                    try {
+                                      await api.patch(`/incidents/${inc._id}/mystatus`, { status: e.target.value });
+                                      fetchMyIncidents();
+                                    } catch { alert("Could not update status"); }
+                                  }}
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="under_review">Under Review</option>
+                                  <option value="resolved">Resolved</option>
+                                </select>
+                              </td>
                               <td>{new Date(inc.createdAt).toLocaleDateString()}</td>
                               <td>
                                 <button
