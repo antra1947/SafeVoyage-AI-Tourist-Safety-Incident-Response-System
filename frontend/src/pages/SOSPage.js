@@ -131,10 +131,30 @@ export default function SOSPage() {
 
               {result && (
                 <div className="alert alert-success">
-                  <i className="fas fa-check-circle me-2"></i>
-                  <strong>SOS Sent Successfully!</strong>
-                  <p className="mb-0 mt-1 small">Your emergency contacts have been notified via email. Help is on the way.</p>
-                  <p className="mb-0 small text-muted">Alert ID: {result.data?._id}</p>
+                  <div className="d-flex align-items-center gap-2 mb-2">
+                    <i className="fas fa-check-circle fa-lg"></i>
+                    <strong>SOS Sent Successfully!</strong>
+                  </div>
+                  <p className="mb-2 small">
+                    A confirmation email has been sent to <strong>{result.data?.confirmationSentTo}</strong>
+                  </p>
+                  {result.data?.notifiedContacts?.length > 0 ? (
+                    <>
+                      <p className="mb-1 small fw-bold">📧 Emergency contacts notified:</p>
+                      {result.data.notifiedContacts.map((c, i) => (
+                        <div key={i} className="d-flex align-items-center gap-2 mb-1 p-2 rounded" style={{ background: "#d4edda" }}>
+                          <i className="fas fa-check text-success"></i>
+                          <span className="small"><strong>{c.name}</strong> — {c.email}</span>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="alert alert-warning py-1 mb-1 small">
+                      <i className="fas fa-exclamation-triangle me-1"></i>
+                      No emergency contacts found. Please add contacts in your profile.
+                    </div>
+                  )}
+                  <p className="mb-0 mt-2 small text-muted">Alert ID: {result.data?._id}</p>
                 </div>
               )}
 

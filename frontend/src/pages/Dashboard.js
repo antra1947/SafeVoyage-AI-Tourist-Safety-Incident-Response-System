@@ -126,7 +126,7 @@ export default function Dashboard() {
           <div className="card-body py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
               <h5 className="text-white mb-0 fw-bold">
-                Welcome back, {profile?.firstName || user?.firstName || "Tourist"} 👋
+                Welcome back, {profile?.firstName || user?.firstName || "Tourist"} {profile?.lastName || user?.lastName || ""} 👋
               </h5>
               <small className="text-white-50">Stay safe. Your safety dashboard is ready.</small>
             </div>
