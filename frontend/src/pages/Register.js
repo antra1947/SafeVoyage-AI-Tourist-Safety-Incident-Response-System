@@ -51,7 +51,27 @@ export default function Register() {
             </div>
             <div className="mb-3">
               <label className="form-label">Password</label>
-              <input type="password" name="password" className="form-control" value={form.password} onChange={handleChange} required minLength={6} />
+              <input type="password" name="password" className="form-control" value={form.password} onChange={handleChange} required minLength={8} />
+              <div className="mt-1">
+                {["min8", "upper", "lower", "number", "special"].map((rule) => {
+                  const checks = {
+                    min8:    form.password.length >= 8,
+                    upper:   /[A-Z]/.test(form.password),
+                    lower:   /[a-z]/.test(form.password),
+                    number:  /\d/.test(form.password),
+                    special: /[@$!%*?&_#]/.test(form.password),
+                  };
+                  const labels = {
+                    min8: "8+ characters", upper: "Uppercase", lower: "Lowercase",
+                    number: "Number", special: "Special char (@$!%*?&_#)",
+                  };
+                  return (
+                    <span key={rule} className="me-2" style={{ fontSize: "0.72rem", color: checks[rule] ? "#27ae60" : "#aaa" }}>
+                      {checks[rule] ? "✓" : "○"} {labels[rule]}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
             <div className="row">
               <div className="col-md-6 mb-3">
