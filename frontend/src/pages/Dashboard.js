@@ -198,6 +198,32 @@ export default function Dashboard() {
                   </>
                 ) : (
                   <>
+                    {/* Photo picker */}
+                    <div className="text-center mb-3">
+                      <div className="profile-avatar mb-2" style={{ cursor: "pointer", position: "relative" }} onClick={() => document.getElementById("photoInput").click()}>
+                        {editForm.photoUrl
+                          ? <img src={editForm.photoUrl} alt="avatar" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                          : <span>{editForm.firstName?.charAt(0)?.toUpperCase() || "?"}</span>
+                        }
+                        <div style={{ position: "absolute", bottom: 0, right: 0, width: 24, height: 24, borderRadius: "50%", background: "#c0392b", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <i className="fas fa-camera text-white" style={{ fontSize: "0.6rem" }}></i>
+                        </div>
+                      </div>
+                      <input
+                        id="photoInput"
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={e => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (ev) => setEditForm({ ...editForm, photoUrl: ev.target.result });
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                      <small className="text-muted d-block" style={{ fontSize: "0.75rem" }}>Click photo to change</small>
+                    </div>
                     <div className="row g-2 mb-2">
                       <div className="col-6">
                         <input className="form-control form-control-sm" placeholder="First Name" value={editForm.firstName} onChange={e => setEditForm({ ...editForm, firstName: e.target.value })} />
@@ -206,7 +232,6 @@ export default function Dashboard() {
                         <input className="form-control form-control-sm" placeholder="Last Name" value={editForm.lastName} onChange={e => setEditForm({ ...editForm, lastName: e.target.value })} />
                       </div>
                     </div>
-                    <input className="form-control form-control-sm mb-2" placeholder="Photo URL (optional)" value={editForm.photoUrl} onChange={e => setEditForm({ ...editForm, photoUrl: e.target.value })} />
                     <hr className="my-2" />
                     <small className="fw-bold text-danger d-block mb-2">Safety Profile</small>
                     <input className="form-control form-control-sm mb-2" placeholder="Blood Group (e.g. B+)" value={editForm.safetyProfile?.bloodGroup} onChange={e => setEditForm({ ...editForm, safetyProfile: { ...editForm.safetyProfile, bloodGroup: e.target.value } })} />
