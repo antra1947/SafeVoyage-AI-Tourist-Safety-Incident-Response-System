@@ -186,8 +186,3 @@ socket.emit("send-location", { latitude: 31.25, longitude: 75.70 })
 
 ---
 
-## Deployment
-
-- Frontend → [Vercel](https://vercel.com)
-- Backend → [Render](https://render.com)
-- Database → [MongoDB Atlas](https://mongodb.com/atlas)
