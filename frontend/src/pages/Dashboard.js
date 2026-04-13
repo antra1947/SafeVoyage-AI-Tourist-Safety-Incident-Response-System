@@ -96,7 +96,8 @@ export default function Dashboard() {
       });
       setTimeout(() => setSaveMsg(""), 3000);
     } catch (e) {
-      setSaveMsg("Update failed. Please try again.");
+      const msg = e.response?.data?.message || e.response?.data?.errors?.[0] || "Update failed. Please try again.";
+      setSaveMsg(msg);
     }
   };
 
