@@ -30,8 +30,6 @@ A production-ready, full-stack MERN application built for real-world tourist saf
 ### Safety Alerts & Zone Warnings
 ![Safety Alerts](screenshots/alerts.png)
 
-### Admin Panel
-![Admin Panel](screenshots/admin.png)
 
 ---
 
