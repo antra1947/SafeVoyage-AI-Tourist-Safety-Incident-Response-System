@@ -15,6 +15,15 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Client-side password strength check
+    const pwd = form.password;
+    if (pwd.length < 8)              { setError("Password must be at least 8 characters"); return; }
+    if (!/[A-Z]/.test(pwd))          { setError("Password must contain at least one uppercase letter"); return; }
+    if (!/[a-z]/.test(pwd))          { setError("Password must contain at least one lowercase letter"); return; }
+    if (!/\d/.test(pwd))             { setError("Password must contain at least one number"); return; }
+    if (!/[@$!%*?&_#]/.test(pwd))    { setError("Password must contain at least one special character (@$!%*?&_#)"); return; }
+
     setLoading(true);
     try {
       const { data } = await api.post("/auth/register", { ...form, age: form.age ? parseInt(form.age) : undefined });
@@ -88,7 +97,7 @@ export default function Register() {
                 </select>
               </div>
             </div>
-            <button type="submit" className="btn btn-danger w-100" disabled={loading}>
+            <button type="submit" className="btn btn-danger w-100" disabled={loading || !(form.password.length >= 8 && /[A-Z]/.test(form.password) && /[a-z]/.test(form.password) && /\d/.test(form.password) && /[@$!%*?&_#]/.test(form.password))}>
               {loading ? <span className="spinner-border spinner-border-sm me-2"></span> : null}
               Register
             </button>
