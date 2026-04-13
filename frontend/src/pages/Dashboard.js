@@ -5,7 +5,7 @@ import api from "../api";
 import LocationMap from "../components/LocationMap";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [profile, setProfile]     = useState(null);
   const [incidents, setIncidents] = useState([]);
   const [sosList, setSosList]     = useState([]);
@@ -88,8 +88,16 @@ export default function Dashboard() {
       setSaveMsg("Profile updated successfully");
       setEditMode(false);
       fetchProfile();
+      // Sync navbar photo and name
+      updateUser({
+        firstName: editForm.firstName,
+        lastName:  editForm.lastName,
+        photoUrl:  editForm.photoUrl,
+      });
       setTimeout(() => setSaveMsg(""), 3000);
-    } catch (e) { setSaveMsg("Update failed. Please try again."); }
+    } catch (e) {
+      setSaveMsg("Update failed. Please try again.");
+    }
   };
 
   const addEmergencyContact = () => {

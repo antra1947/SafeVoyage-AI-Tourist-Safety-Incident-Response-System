@@ -59,8 +59,17 @@ export default function Navbar() {
                 )}
                 <li className="nav-item ms-1">
                   <div className="d-flex align-items-center gap-2">
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 700 }}>
-                      {user.firstName?.charAt(0).toUpperCase()}
+                    <div style={{
+                      width: 32, height: 32, borderRadius: "50%",
+                      background: user?.photoUrl ? "transparent" : "rgba(255,255,255,0.2)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: "0.8rem", fontWeight: 700, overflow: "hidden",
+                      border: "2px solid rgba(255,255,255,0.4)"
+                    }}>
+                      {user?.photoUrl
+                        ? <img src={user.photoUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        : user?.firstName?.charAt(0).toUpperCase()
+                      }
                     </div>
                     <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>
                       <i className="fas fa-sign-out-alt me-1"></i>Logout

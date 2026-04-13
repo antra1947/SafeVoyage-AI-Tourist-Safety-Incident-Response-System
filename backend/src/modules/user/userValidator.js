@@ -3,7 +3,7 @@ const Joi = require("joi");
 const updateProfileSchema = Joi.object({
   firstName: Joi.string().optional().allow(""),
   lastName:  Joi.string().optional().allow(""),
-  photoUrl:  Joi.string().optional().allow(""),
+  photoUrl:  Joi.string().optional().allow(""),  // accepts base64 or URL
   safetyProfile: Joi.object({
     bloodGroup:   Joi.string().optional().allow(""),
     allergies:    Joi.string().optional().allow(""),

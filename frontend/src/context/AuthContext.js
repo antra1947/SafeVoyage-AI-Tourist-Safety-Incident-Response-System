@@ -2,15 +2,13 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 
 const AuthContext = createContext();
 
-// Provides authentication state across the entire app
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser]   = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Restore session from localStorage on page refresh
-    const savedUser = localStorage.getItem("sv_user");
+    const savedUser  = localStorage.getItem("sv_user");
     const savedToken = localStorage.getItem("sv_token");
     if (savedUser && savedToken) {
       setUser(JSON.parse(savedUser));
@@ -26,6 +24,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("sv_token", authToken);
   };
 
+  // Call this after profile update to keep navbar in sync
+  const updateUser = (updatedData) => {
+    const merged = { ...user, ...updatedData };
+    setUser(merged);
+    localStorage.setItem("sv_user", JSON.stringify(merged));
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -34,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser, loading }}>
       {children}
     </AuthContext.Provider>
   );
