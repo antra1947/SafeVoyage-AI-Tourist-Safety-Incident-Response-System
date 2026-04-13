@@ -31,28 +31,28 @@ export default function Navbar() {
             {user ? (
               <>
                 <li className="nav-item">
-                  <Link className={`nav-link ${isActive("/dashboard") ? "bg-white bg-opacity-20 fw-bold" : ""}`} to="/dashboard" onClick={() => setOpen(false)}>
+                  <Link className={`nav-link ${isActive("/dashboard") ? "active-link" : ""}`} to="/dashboard" onClick={() => setOpen(false)}>
                     <i className="fas fa-home me-1"></i>Dashboard
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className={`nav-link ${isActive("/sos") ? "bg-white bg-opacity-20 fw-bold" : ""}`} to="/sos" onClick={() => setOpen(false)}>
-                    <i className="fas fa-exclamation-triangle me-1 text-warning"></i>SOS
+                  <Link className={`nav-link ${isActive("/sos") ? "active-link" : ""}`} to="/sos" onClick={() => setOpen(false)}>
+                    <i className="fas fa-exclamation-triangle me-1"></i>SOS
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className={`nav-link ${isActive("/report") ? "bg-white bg-opacity-20 fw-bold" : ""}`} to="/report" onClick={() => setOpen(false)}>
+                  <Link className={`nav-link ${isActive("/report") ? "active-link" : ""}`} to="/report" onClick={() => setOpen(false)}>
                     <i className="fas fa-file-alt me-1"></i>Report
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className={`nav-link ${isActive("/alerts") ? "bg-white bg-opacity-20 fw-bold" : ""}`} to="/alerts" onClick={() => setOpen(false)}>
+                  <Link className={`nav-link ${isActive("/alerts") ? "active-link" : ""}`} to="/alerts" onClick={() => setOpen(false)}>
                     <i className="fas fa-bell me-1"></i>Alerts
                   </Link>
                 </li>
                 {user.role === "admin" && (
                   <li className="nav-item">
-                    <Link className={`nav-link text-warning ${isActive("/admin") ? "bg-white bg-opacity-20 fw-bold" : ""}`} to="/admin" onClick={() => setOpen(false)}>
+                    <Link className={`nav-link ${isActive("/admin") ? "active-link" : ""}`} style={{ color: "#ffd700 !important" }} to="/admin" onClick={() => setOpen(false)}>
                       <i className="fas fa-cog me-1"></i>Admin
                     </Link>
                   </li>
