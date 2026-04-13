@@ -36,7 +36,22 @@ export default function ResetPassword() {
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label small">New Password</label>
-              <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} placeholder="Min 6 characters" />
+              <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} placeholder="Min 8 chars, uppercase, number, special" />
+              <div className="mt-1">
+                {["min8", "upper", "lower", "number", "special"].map((rule) => {
+                  const checks = {
+                    min8: password.length >= 8, upper: /[A-Z]/.test(password),
+                    lower: /[a-z]/.test(password), number: /\d/.test(password),
+                    special: /[@$!%*?&_#]/.test(password),
+                  };
+                  const labels = { min8: "8+ chars", upper: "Uppercase", lower: "Lowercase", number: "Number", special: "Special (@$!%*?&_#)" };
+                  return (
+                    <span key={rule} className="me-2" style={{ fontSize: "0.72rem", color: checks[rule] ? "#27ae60" : "#aaa" }}>
+                      {checks[rule] ? "✓" : "○"} {labels[rule]}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
             <div className="mb-3">
               <label className="form-label small">Confirm Password</label>
