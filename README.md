@@ -21,6 +21,9 @@ A production-ready, full-stack MERN application built for real-world tourist saf
 ### Safety Alerts & Zone Warnings
 ![Safety Alerts](screenshots/alerts.png)
 
+> **Note:** Replace the above screenshots with updated ones from the current UI.
+> Take new screenshots of: Login, Dashboard (with profile photo + AI tips), SOS page, Report page, Alerts page, Admin panel, Register page (with password strength indicator), Forgot Password page.
+
 ---
 
 ## Tech Stack
@@ -30,15 +33,17 @@ A production-ready, full-stack MERN application built for real-world tourist saf
 - Bootstrap 5
 - Leaflet.js (live map)
 - Axios
+- react-hot-toast (notifications)
 
 **Backend**
 - Node.js + Express.js (MVC + Microservices)
 - MongoDB + Mongoose (geospatial 2dsphere)
 - Socket.IO (real-time location)
 - JWT Authentication + bcrypt
-- Joi Validation
+- Joi Validation (with password strength rules)
 - Nodemailer (Gmail / Amazon SES)
 - Helmet + Rate Limiting + Morgan
+- express-mongo-sanitize (NoSQL injection prevention)
 - EJS (map interface)
 - Google Gemini AI (`gemini-1.5-flash`)
 
@@ -49,8 +54,12 @@ A production-ready, full-stack MERN application built for real-world tourist saf
 ```
 ├── backend/
 │   ├── src/
-│   │   ├── config/db.js
-│   │   ├── middleware/auth.js, validate.js
+│   │   ├── config/
+│   │   │   ├── db.js
+│   │   │   └── validateEnv.js
+│   │   ├── middleware/
+│   │   │   ├── auth.js
+│   │   │   └── validate.js
 │   │   ├── modules/
 │   │   │   ├── auth/
 │   │   │   ├── user/
@@ -59,7 +68,9 @@ A production-ready, full-stack MERN application built for real-world tourist saf
 │   │   │   ├── location/
 │   │   │   ├── admin/
 │   │   │   └── ai/
-│   │   ├── utils/emailService.js
+│   │   ├── utils/
+│   │   │   ├── emailService.js
+│   │   │   └── logger.js
 │   │   ├── views/map.ejs
 │   │   └── app.js
 │   ├── services/                  ← Microservices
@@ -69,12 +80,23 @@ A production-ready, full-stack MERN application built for real-world tourist saf
 │   │   ├── incident-service/      → port 7003
 │   │   ├── emergency-service/     → port 7004
 │   │   └── location-service/      → port 7005
+│   ├── .env.example
 │   └── package.json
 └── frontend/
     ├── src/
     │   ├── components/
     │   ├── context/AuthContext.js
     │   ├── pages/
+    │   │   ├── Login.js
+    │   │   ├── Register.js
+    │   │   ├── Dashboard.js
+    │   │   ├── SOSPage.js
+    │   │   ├── IncidentReport.js
+    │   │   ├── SafetyAlerts.js
+    │   │   ├── AdminPanel.js
+    │   │   ├── ForgotPassword.js
+    │   │   ├── ResetPassword.js
+    │   │   └── NotFound.js
     │   ├── styles/global.css
     │   ├── api.js
     │   └── App.js
@@ -85,12 +107,12 @@ A production-ready, full-stack MERN application built for real-world tourist saf
 
 ## Environment Variables
 
-Create `backend/.env`:
+Copy `backend/.env.example` to `backend/.env` and fill in:
 
 ```env
 PORT=7000
 DB_CONNECTION_STRING=your_mongodb_uri
-JWT_SECRET=your_secret_key
+JWT_SECRET=your_32_char_random_secret
 
 # Gmail
 EMAIL_PROVIDER=gmail
@@ -105,9 +127,13 @@ EMAIL_PASS=your_gmail_app_password
 # SES_PASS=your_ses_pass
 
 ALLOWED_ORIGINS=http://localhost:3000
+FRONTEND_URL=http://localhost:3000
 
 # Gemini AI
 GEMINI_API_KEY=your_gemini_api_key
+
+# Logging
+LOG_LEVEL=info
 ```
 
 > Get Gmail App Password: Google Account → Security → 2-Step Verification → App Passwords
@@ -117,7 +143,7 @@ GEMINI_API_KEY=your_gemini_api_key
 
 ## Local Setup
 
-### 1. Backend (Monolithic)
+### 1. Backend
 ```bash
 cd backend
 npm install
@@ -153,14 +179,16 @@ db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
 ### Auth
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/register` | Register (password: 8+ chars, uppercase, lowercase, number, special char) |
 | POST | `/api/auth/login` | Login |
+| POST | `/api/auth/forgot-password` | Send password reset email |
+| POST | `/api/auth/reset-password/:token` | Reset password (15 min token) |
 
 ### User
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/user/profile` | Get profile |
-| PATCH | `/api/user/profile` | Update profile + safety profile + emergency contacts |
+| PATCH | `/api/user/profile` | Update profile + safety profile + emergency contacts + photo |
 
 ### Emergency
 | Method | Endpoint | Description |
@@ -169,14 +197,17 @@ db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
 | GET | `/api/emergency/history` | Get SOS history |
 | GET | `/api/emergency/:id` | Get single emergency |
 | PATCH | `/api/emergency/:id/resolve` | Resolve emergency |
+| DELETE | `/api/emergency/:id` | Delete SOS record |
 
 ### Incidents
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/incidents` | Report incident |
-| GET | `/api/incidents/my` | My incidents |
-| GET | `/api/incidents` | All incidents (admin) |
-| PATCH | `/api/incidents/:id/status` | Update status (admin) |
+| GET | `/api/incidents/my` | My incidents (paginated) |
+| GET | `/api/incidents` | All incidents — admin (search, filter, paginated) |
+| PATCH | `/api/incidents/:id/mystatus` | User updates own incident status |
+| PATCH | `/api/incidents/:id/status` | Admin updates incident status |
+| DELETE | `/api/incidents/:id` | User deletes own incident |
 
 ### Admin
 | Method | Endpoint | Description |
@@ -208,11 +239,13 @@ Authorization: Bearer <token>
 ## SOS Email Flow
 
 When a user triggers SOS:
-1. GPS coordinates captured (memory-first, DB fallback)
-2. Rich HTML alert email sent to every emergency contact with Google Maps link
-3. Confirmation email sent to the user showing exactly who was notified
-4. Emergency numbers (100, 108, 101, 1091) included in every email
-5. SOS logged in DB with timestamp and status tracking
+1. GPS coordinates captured from browser (fallback: socket memory → DB)
+2. Coordinates validated (lat: -90 to 90, lng: -180 to 180)
+3. Rich HTML alert email sent to every emergency contact with Google Maps link
+4. Confirmation email sent to the user showing exactly who was notified
+5. Emergency numbers (100, 108, 101, 1091) included in every email
+6. SOS logged in DB with timestamp and status tracking
+7. Rate limited: max 3 SOS per minute
 
 ---
 
@@ -229,25 +262,42 @@ socket.emit("send-location", { latitude: 31.25, longitude: 75.70 })
 
 ---
 
+## Security Features
+
+- JWT authentication with role-based access (Tourist / Admin)
+- bcrypt password hashing (salt rounds: 10)
+- Password strength enforcement: 8+ chars, uppercase, lowercase, number, special character
+- Helmet.js security headers
+- Rate limiting: 200 req/15min global, 20 req/15min auth, 3 req/min SOS
+- NoSQL injection prevention (express-mongo-sanitize)
+- CORS configured per environment
+- Environment variable validation at startup
+- Structured logging with log levels
+
+---
+
 ## Features
 
 - JWT authentication with role-based access (Tourist / Admin)
 - Full safety profile — blood group, allergies, medical notes, emergency contacts
+- Profile photo upload from browser (base64)
 - One-click SOS with rich HTML email alerts + sender confirmation
 - Real-time location tracking via Socket.IO
 - Nearby users via MongoDB 2dsphere geospatial query
 - Incident reporting with type, severity, GPS, AI analysis
-- AI Safety Advisor powered by Google Gemini
+- User can update/delete own incidents and SOS records
+- AI Safety Advisor powered by Google Gemini (location-specific tips)
 - Safety zone warnings with severity levels
 - Admin panel — stats, user management, incident management, SOS acknowledgment
+- Search + filter on admin incidents panel
+- Pagination on all list endpoints
+- Password reset via email (15-minute expiry token)
+- Forgot password flow with email link
+- 404 Not Found page
+- Toast notifications (no browser popups)
+- Navbar hidden on auth pages
 - Provider-agnostic email (Gmail or Amazon SES)
 - Rate limiting, Helmet security headers, Morgan logging
+- Structured logger with log levels
+- Environment validation at startup
 - Microservices architecture with API Gateway
-
----
-
-## Deployment
-
-- Frontend → [Vercel](https://vercel.com)
-- Backend → [Render](https://render.com)
-- Database → [MongoDB Atlas](https://mongodb.com/atlas)
