@@ -30,6 +30,7 @@ app.use("/api/auth",      require("./modules/auth/authRoutes"));
 app.use("/api/user",      require("./modules/user/userRoutes"));
 app.use("/api/emergency", require("./modules/emergency/emergencyRoutes"));
 app.use("/api/locations", require("./modules/location/locationRoutes"));
+app.use("/api/incidents", require("./modules/incident/incidentRoutes"));
 
 // Map UI (protected, pass ?token=<jwt> in URL)
 app.get("/api/map", protect, getMap);
