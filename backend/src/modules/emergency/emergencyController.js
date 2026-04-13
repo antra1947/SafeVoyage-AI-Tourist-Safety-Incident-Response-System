@@ -11,7 +11,13 @@ const triggerSOS = async (req, res) => {
     // Priority: 1) browser GPS from request, 2) socket memory, 3) DB
     let coords;
     if (latitude && longitude) {
-      coords = [parseFloat(longitude), parseFloat(latitude)];
+      const lat = parseFloat(latitude);
+      const lng = parseFloat(longitude);
+      // Validate bounds
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        return res.status(400).json({ success: false, message: "Invalid GPS coordinates" });
+      }
+      coords = [lng, lat];
     } else {
       const memLoc = locationStore.get(String(user._id));
       coords = memLoc

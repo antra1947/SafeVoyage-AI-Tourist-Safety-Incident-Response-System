@@ -67,8 +67,12 @@ const adminDeleteIncident = async (req, res) => {
 // User updates their own incident status
 const updateMyStatus = async (req, res) => {
   try {
+    const validStatuses = ["pending", "under_review", "resolved"];
+    if (!validStatuses.includes(req.body.status)) {
+      return res.status(400).json({ success: false, message: "Invalid status value" });
+    }
     const incident = await Incident.findOneAndUpdate(
-      { _id: req.params.id, reportedBy: req.user._id },
+      { _id: req.params.id, reportedBy: req.user._id }, // ownership enforced
       { status: req.body.status },
       { new: true }
     );

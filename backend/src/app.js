@@ -1,4 +1,5 @@
 require("dotenv").config();
+require("./config/validateEnv");
 const express    = require("express");
 const cors       = require("cors");
 const http       = require("http");
@@ -8,6 +9,7 @@ const helmet     = require("helmet");
 const morgan     = require("morgan");
 const rateLimit  = require("express-rate-limit");
 const mongoSanitize = require("express-mongo-sanitize");
+const logger     = require("./utils/logger");
 
 const connectDB      = require("./config/db");
 const { initSocket } = require("./modules/location/socketHandler");
@@ -37,8 +39,10 @@ app.use(morgan("dev"));
 // Rate limiting
 const limiter     = rateLimit({ windowMs: 15 * 60 * 1000, max: 200, message: { success: false, message: "Too many requests, please try again later." } });
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20,  message: { success: false, message: "Too many auth attempts, please try again later." } });
-app.use("/api/",      limiter);
-app.use("/api/auth/", authLimiter);
+const sosLimiter  = rateLimit({ windowMs: 60 * 1000, max: 3, message: { success: false, message: "Too many SOS requests. Please wait before trying again." } });
+app.use("/api/",           limiter);
+app.use("/api/auth/",      authLimiter);
+app.use("/api/emergency/", sosLimiter);
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -65,11 +69,11 @@ app.use((req, res) => {
 
 // Centralized error handler
 app.use((err, req, res, next) => {
-  console.error(`[ERROR] ${err.message}`);
+  logger.error(err.message, { path: req.path, method: req.method });
   res.status(err.status || 500).json({ success: false, message: err.message || "Internal server error" });
 });
 
 initSocket(io);
 
 const PORT = process.env.PORT || 7000;
-server.listen(PORT, () => console.log(`SafeVoyage server running on port ${PORT}`));
+server.listen(PORT, () => logger.info(`SafeVoyage server running on port ${PORT}`));
