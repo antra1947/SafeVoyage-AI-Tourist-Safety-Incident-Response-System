@@ -20,15 +20,31 @@ const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
   : ["http://localhost:3000"];
 
+// In production allow all vercel preview URLs too
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (
+      ALLOWED_ORIGINS.includes(origin) ||
+      origin.endsWith(".vercel.app") ||
+      origin === "http://localhost:3000"
+    ) {
+      return callback(null, true);
+    }
+    callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+};
+
 const app    = express();
 const server = http.createServer(app);
-const io     = new Server(server, { cors: { origin: ALLOWED_ORIGINS, credentials: true } });
+const io     = new Server(server, { cors: corsOptions });
 
 connectDB();
 
 // Security
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(mongoSanitize()); // prevent NoSQL injection
