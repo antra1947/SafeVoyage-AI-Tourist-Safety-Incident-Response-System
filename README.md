@@ -2,7 +2,7 @@
 
 A production-ready, full-stack MERN application built for real-world tourist safety. Features real-time location tracking, AI-powered safety advice, emergency SOS with email alerts, incident reporting, and an admin control panel.
 
-🔴 **Live Demo:** [safe-voyage-ai-tourist-safety-incident-response-syst-3tl6ohb9o.vercel.app](https://safe-voyage-ai-tourist-safety-incident-response-syst-3tl6ohb9o.vercel.app)
+🔴 **Live Demo:** [safe-voyage-ai-tourist-safety-incid.vercel.app](https://safe-voyage-ai-tourist-safety-incid.vercel.app)
 
 🔵 **Backend API:** [safevoyage-ai-tourist-safety-incident.onrender.com](https://safevoyage-ai-tourist-safety-incident.onrender.com)
 
